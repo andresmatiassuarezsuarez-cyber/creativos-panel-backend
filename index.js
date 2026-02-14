@@ -1,9 +1,14 @@
-require("dotenv").config();
-const express = require("express");
-const session = require("express-session");
-const axios = require("axios");
-const cors = require("cors");
-const path = require("path");
+import "dotenv/config";
+import express from "express";
+import session from "express-session";
+import axios from "axios";
+import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// Necesario para __dirname en ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -93,3 +98,4 @@ app.get("/auth/logout", (req, res) => {
 // PUERTO
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log("Backend funcionando en puerto " + PORT));
+
