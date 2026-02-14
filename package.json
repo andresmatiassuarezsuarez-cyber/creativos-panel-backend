@@ -7,10 +7,11 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
+    "axios": "^1.13.5",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "axios": "^1.6.7",
+    "express": "^4.18.2",
+    "express-session": "^1.19.0",
     "mongoose": "^7.6.3"
   }
 }
