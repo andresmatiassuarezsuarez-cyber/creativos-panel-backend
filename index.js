@@ -1,101 +1,93 @@
-import "dotenv/config";
 import express from "express";
-import session from "express-session";
-import axios from "axios";
 import cors from "cors";
-import path from "path";
-import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+import axios from "axios";
+import session from "express-session";
 
-// Necesario para __dirname en ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+dotenv.config();
 
 const app = express();
-
-app.use(cors({
-  origin: true,
-  credentials: true
-}));
-
+app.use(cors());
 app.use(express.json());
 
-// SESSION
+// Sesiones
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "supersecret",
+    secret: "creativos-secret",
     resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: false,
-      httpOnly: true,
-      sameSite: "lax"
-    }
+    saveUninitialized: true,
   })
 );
 
-// SERVIR FRONTEND DESDE /public
-app.use(express.static(path.join(__dirname, "public")));
-
+// Ruta de prueba
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.send("API del panel funcionando correctamente");
 });
 
-// LOGIN DISCORD
+// ===============================
+//      LOGIN CON DISCORD
+// ===============================
+
+// 1. Ruta para iniciar sesión
 app.get("/auth/login", (req, res) => {
-  const redirect = `https://discord.com/oauth2/authorize?client_id=${process.env.CLIENT_ID}&redirect_uri=${encodeURIComponent(process.env.REDIRECT_URI)}&response_type=code&scope=identify`;
+  const redirect = `https://discord.com/oauth2/authorize?client_id=${process.env.CLIENT_ID}&redirect_uri=${encodeURIComponent(
+    process.env.REDIRECT_URI
+  )}&response_type=code&scope=identify%20guilds`;
+
   res.redirect(redirect);
 });
 
-// CALLBACK DISCORD
+// 2. Callback de Discord
 app.get("/auth/callback", async (req, res) => {
   const code = req.query.code;
 
-  if (!code) return res.status(400).send("No se recibió el código.");
+  if (!code) return res.send("No se recibió el código de Discord");
 
   try {
-    const tokenResponse = await axios.post(
+    const data = new URLSearchParams({
+      client_id: process.env.CLIENT_ID,
+      client_secret: process.env.CLIENT_SECRET,
+      grant_type: "authorization_code",
+      code,
+      redirect_uri: process.env.REDIRECT_URI,
+    });
+
+    const tokenRes = await axios.post(
       "https://discord.com/api/oauth2/token",
-      new URLSearchParams({
-        client_id: process.env.CLIENT_ID,
-        client_secret: process.env.CLIENT_SECRET,
-        grant_type: "authorization_code",
-        code,
-        redirect_uri: process.env.REDIRECT_URI
-      }),
+      data,
       {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
       }
     );
 
-    const userResponse = await axios.get("https://discord.com/api/users/@me", {
-      headers: { Authorization: `Bearer ${tokenResponse.data.access_token}` }
-    });
+    req.session.token = tokenRes.data.access_token;
 
-    req.session.user = userResponse.data;
-
-    // ⭐ REDIRECCIÓN DIRECTA AL PANEL BONITO
-    res.redirect("/");
-
+    res.send("Login correcto. Ya puedes cerrar esta ventana.");
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error en el login.");
+    res.send("Error al obtener el token.");
   }
 });
 
-// INFO DEL USUARIO
-app.get("/auth/me", (req, res) => {
-  if (!req.session.user) return res.json({});
-  res.json(req.session.user);
+// 3. Obtener datos del usuario autenticado
+app.get("/auth/me", async (req, res) => {
+  if (!req.session.token) return res.send("No estás autenticado.");
+
+  try {
+    const userRes = await axios.get("https://discord.com/api/users/@me", {
+      headers: { Authorization: `Bearer ${req.session.token}` },
+    });
+
+    res.json(userRes.data);
+  } catch (err) {
+    console.error(err);
+    res.send("Error al obtener datos del usuario.");
+  }
 });
 
-// LOGOUT
-app.get("/auth/logout", (req, res) => {
-  req.session.destroy(() => {
-    res.redirect("/");
-  });
-});
-
-// PUERTO
+// Puerto
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("Backend funcionando en puerto " + PORT));
+app.listen(PORT, () => {
+  console.log(`Panel backend corriendo en el puerto ${PORT}`);
+});
 
