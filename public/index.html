@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel Creativos</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0"></script>
+</head>
+<body>
+
+  <div class="mouse-glow" id="mouse-glow"></div>
+
+  <aside class="sidebar">
+    <h2 class="logo">Creativos</h2>
+    <nav>
+      <a href="#" class="nav-link active" data-section="inicio">Inicio</a>
+      <a href="#" class="nav-link" data-section="perfil">Mi Perfil</a>
+      <a href="#" class="nav-link" data-section="estadisticas">Estadísticas</a>
+      <a href="#" class="nav-link" data-section="servidor">Servidor</a>
+      <a href="#" class="nav-link" data-section="usuarios">Usuarios</a>
+      <a href="#" class="nav-link" data-section="bot">Bot Dashboard</a>
+      <a href="#" class="nav-link" data-section="admin">Admin</a>
+      <a href="#" class="nav-link" data-section="ajustes">Ajustes</a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <header class="header">
+      <h1>Panel Creativos</h1>
+      <button class="login-btn" onclick="login()">Iniciar sesión con Discord</button>
+    </header>
+
+    <!-- INICIO -->
+    <section id="section-inicio" class="section visible">
+      <h2>Bienvenidos a Creativos RP</h2>
+      <p>
+        La web oficial de comandos, anuncios, soporte y gestión del staff de Creativos RP.
+      </p>
+
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <h3>Actividad semanal</h3>
+          <p id="kpi-actividad">Alta</p>
+        </div>
+        <div class="kpi-card">
+          <h3>Comandos del bot</h3>
+          <p id="kpi-comandos">38</p>
+        </div>
+        <div class="kpi-card">
+          <h3>Servidores</h3>
+          <p id="kpi-servidores">1</p>
+        </div>
+      </div>
+
+      <p class="muted" id="recomendacion">
+        Recomendación: revisa el apartado Admin y Bot Dashboard para controlar la actividad del staff y del bot.
+      </p>
+    </section>
+
+    <!-- PERFIL -->
+    <section id="section-perfil" class="section">
+      <h2>Mi Perfil</h2>
+      <div id="user-card" class="user-card hidden">
+        <img id="avatar" class="avatar">
+        <h3 id="username"></h3>
+        <p id="userid"></p>
+        <p id="role"></p>
+        <p id="server-info"></p>
+        <p id="time-info"></p>
+      </div>
+      <p id="no-user" class="muted">Inicia sesión para ver tu perfil.</p>
+
+      <button id="btn-volver" class="back-btn hidden">Volver al inicio</button>
+    </section>
+
+    <!-- ESTADÍSTICAS -->
+    <section id="section-estadisticas" class="section">
+      <h2>Estadísticas</h2>
+      <canvas id="statsChart"></canvas>
+
+      <h3>Admins activos</h3>
+      <ul id="admin-list" class="tag-list"></ul>
+    </section>
+
+    <!-- SERVIDOR -->
+    <section id="section-servidor" class="section">
+      <h2>Servidor</h2>
+      <p class="muted">Actualizaciones de normas, anuncios y cambios importantes.</p>
+
+      <div id="server-updates" class="server-updates"></div>
+
+      <div id="server-edit" class="settings-card hidden">
+        <h3>Añadir actualización</h3>
+        <input id="update-title" placeholder="Título" class="text-input">
+        <textarea id="update-body" placeholder="Descripción" class="text-area"></textarea>
+        <button id="add-update-btn" class="primary-btn">Guardar actualización</button>
+      </div>
+    </section>
+
+    <!-- USUARIOS -->
+    <section id="section-usuarios" class="section">
+      <h2>Usuarios</h2>
+
+      <div class="user-filters">
+        <button class="filter-btn active" data-filter="all">Todos</button>
+        <button class="filter-btn" data-filter="admin">Admins</button>
+        <button class="filter-btn" data-filter="mod">Mods</button>
+        <button class="filter-btn" data-filter="staff">Activity Staff</button>
+      </div>
+
+      <input id="user-search" placeholder="Buscar usuario..." class="search-input">
+      <div id="user-list" class="user-list"></div>
+    </section>
+
+    <!-- BOT DASHBOARD -->
+    <section id="section-bot" class="section">
+      <h2>Bot Dashboard</h2>
+      <p id="bot-status">Estado del bot: cargando...</p>
+      <canvas id="botChart"></canvas>
+
+      <div id="bot-admin-controls" class="settings-card hidden">
+        <h3>Controles del bot (solo admin)</h3>
+        <button class="primary-btn">Reiniciar bot</button>
+        <button class="primary-btn">Refrescar comandos</button>
+      </div>
+    </section>
+
+    <!-- ADMIN -->
+    <section id="section-admin" class="section">
+      <h2>Panel Admin</h2>
+
+      <div class="admin-grid">
+        <div class="admin-card">
+          <h3>Activity Staff</h3>
+          <ul id="staff-activity" class="simple-list"></ul>
+        </div>
+
+        <div class="admin-card">
+          <h3>Usuarios baneados</h3>
+          <ul id="ban-list" class="simple-list"></ul>
+        </div>
+
+        <div class="admin-card">
+          <h3>Estado del sistema</h3>
+          <ul id="system-status" class="simple-list"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- AJUSTES -->
+    <section id="section-ajustes" class="section">
+      <h2>Ajustes</h2>
+
+      <div class="settings-card">
+        <h3>Tema</h3>
+        <button id="toggle-theme" class="primary-btn">Cambiar tema</button>
+      </div>
+
+      <div class="settings-card">
+        <h3>Color principal</h3>
+        <input type="color" id="primary-color-picker">
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
+
